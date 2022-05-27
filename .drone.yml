@@ -1,0 +1,206 @@
+---
+kind: pipeline
+type: kubernetes
+name: build-minimal-amd64
+
+steps:
+  - name: build
+    image: lemontech/drone-kaniko
+    pull: always
+    settings:
+      registry: public.ecr.aws/lemontech
+      registry_mirror:
+        from_secret: REGISTRY_MIRROR
+      repo: tika
+      dockerfile: minimal/Dockerfile
+      tags:
+        - ${DRONE_COMMIT_SHA}-minimal-linux-amd64
+      build_args:
+        - TIKA_VERSION=${DRONE_TAG}
+        - TIKA_JAR_NAME=tika-server-standard
+
+trigger:
+  event:
+    - tag
+---
+kind: pipeline
+type: kubernetes
+name: build-minimal-arm64
+
+steps:
+  - name: build
+    image: lemontech/drone-kaniko
+    pull: always
+    settings:
+      registry: public.ecr.aws/lemontech
+      registry_mirror:
+        from_secret: REGISTRY_MIRROR
+      repo: tika
+      dockerfile: minimal/Dockerfile
+      tags:
+        - ${DRONE_COMMIT_SHA}-minimal-linux-arm64
+      build_args:
+        - TIKA_VERSION=${DRONE_TAG}
+        - TIKA_JAR_NAME=tika-server-standard
+
+trigger:
+  event:
+    - tag
+
+node_selector:
+  kubernetes.io/arch: arm64
+
+tolerations:
+  - key: node/arch
+    operator: Equal
+    value: arm64
+    effect: NoSchedule
+---
+kind: pipeline
+type: kubernetes
+name: publish-minimal-manifests
+
+steps:
+- name: publish-manifests
+  image: amazon/aws-cli
+  environment:
+    DOCKER_CLI_EXPERIMENTAL: enabled
+    REPOSITORY: public.ecr.aws/lemontech/tika
+  commands:
+    - amazon-linux-extras install docker
+    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/lemontech
+    - if [ -n "${DRONE_PULL_REQUEST:-}" ]; then
+        TAGS="pr-${DRONE_PULL_REQUEST:-},${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER}";
+      elif [ -n "${DRONE_TAG:-}" ]; then
+        TAGS="${DRONE_TAG},${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER},latest";
+      else
+        TAGS="${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER},latest";
+      fi
+    - echo "$${TAGS}" | tr ',' '\n' | while read TAG; do
+        docker manifest create $${REPOSITORY}:$${TAG}
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-arm64
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-amd64 &&
+        docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64 &&
+        docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
+        docker manifest push $${REPOSITORY}:$${TAG};
+      done
+
+trigger:
+  event:
+    - tag
+
+depends_on:
+  - build-minimal-amd64
+  - build-minimal-arm64
+---
+kind: pipeline
+type: kubernetes
+name: build-full-amd64
+
+steps:
+  - name: build
+    image: lemontech/drone-kaniko
+    pull: always
+    settings:
+      registry: public.ecr.aws/lemontech
+      registry_mirror:
+        from_secret: REGISTRY_MIRROR
+      repo: tika
+      dockerfile: full/Dockerfile
+      tags:
+        - ${DRONE_COMMIT_SHA}-full-linux-amd64
+      build_args:
+        - TIKA_VERSION=${DRONE_TAG}
+        - TIKA_JAR_NAME=tika-server-standard
+
+trigger:
+  event:
+    - tag
+---
+kind: pipeline
+type: kubernetes
+name: build-full-arm64
+
+steps:
+  - name: build
+    image: lemontech/drone-kaniko
+    pull: always
+    settings:
+      registry: public.ecr.aws/lemontech
+      registry_mirror:
+        from_secret: REGISTRY_MIRROR
+      repo: tika
+      dockerfile: full/Dockerfile
+      tags:
+        - ${DRONE_COMMIT_SHA}-full-linux-arm64
+      build_args:
+        - TIKA_VERSION=${DRONE_TAG}
+        - TIKA_JAR_NAME=tika-server-standard
+
+trigger:
+  event:
+    - tag
+
+node_selector:
+  kubernetes.io/arch: arm64
+
+tolerations:
+  - key: node/arch
+    operator: Equal
+    value: arm64
+    effect: NoSchedule
+---
+kind: pipeline
+type: kubernetes
+name: publish-full-manifests
+
+steps:
+- name: publish-manifests
+  image: amazon/aws-cli
+  environment:
+    DOCKER_CLI_EXPERIMENTAL: enabled
+    REPOSITORY: public.ecr.aws/lemontech/tika
+  commands:
+    - amazon-linux-extras install docker
+    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/lemontech
+    - if [ -n "${DRONE_PULL_REQUEST:-}" ]; then
+        TAGS="pr-${DRONE_PULL_REQUEST:-},${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER}";
+      elif [ -n "${DRONE_TAG:-}" ]; then
+        TAGS="${DRONE_TAG},${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER},latest";
+      else
+        TAGS="${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER},latest";
+      fi
+    - echo "$${TAGS}" | tr ',' '\n' | while read TAG; do
+        docker manifest create $${REPOSITORY}:$${TAG}
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-arm64
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-amd64 &&
+        docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-arm64 &&
+        docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-amd64 &&
+        docker manifest push $${REPOSITORY}:$${TAG};
+      done
+
+trigger:
+  event:
+    - tag
+
+depends_on:
+  - build-full-amd64
+  - build-full-arm64
+---
+kind: pipeline
+type: kubernetes
+name: end
+
+steps:
+- name: enabled
+  image: alpine
+  commands:
+    - echo end
+
+depends_on:
+  - publish-minimal-manifests
+  - publish-full-manifests
+
+trigger:
+  event:
+    - tag
