@@ -8,10 +8,10 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws/lemontech
+      registry: public.ecr.aws
       registry_mirror:
         from_secret: REGISTRY_MIRROR
-      repo: tika
+      repo: lemontech/tika
       dockerfile: minimal/Dockerfile
       tags:
         - ${DRONE_COMMIT_SHA}-minimal-linux-amd64
@@ -32,10 +32,10 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws/lemontech
+      registry: public.ecr.aws
       registry_mirror:
         from_secret: REGISTRY_MIRROR
-      repo: tika
+      repo: lemontech/tika
       dockerfile: minimal/Dockerfile
       tags:
         - ${DRONE_COMMIT_SHA}-minimal-linux-arm64
@@ -65,7 +65,7 @@ steps:
   image: amazon/aws-cli
   environment:
     DOCKER_CLI_EXPERIMENTAL: enabled
-    REPOSITORY: public.ecr.aws/lemontech/tika
+    REPOSITORY: public.ecr.aws/lemontech/tika-minimal
   commands:
     - amazon-linux-extras install docker
     - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/lemontech
@@ -102,10 +102,10 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws/lemontech
+      registry: public.ecr.aws
       registry_mirror:
         from_secret: REGISTRY_MIRROR
-      repo: tika
+      repo: lemontech/tika
       dockerfile: full/Dockerfile
       tags:
         - ${DRONE_COMMIT_SHA}-full-linux-amd64
@@ -126,10 +126,10 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws/lemontech
+      registry: public.ecr.aws
       registry_mirror:
         from_secret: REGISTRY_MIRROR
-      repo: tika
+      repo: lemontech/tika
       dockerfile: full/Dockerfile
       tags:
         - ${DRONE_COMMIT_SHA}-full-linux-arm64
@@ -159,7 +159,7 @@ steps:
   image: amazon/aws-cli
   environment:
     DOCKER_CLI_EXPERIMENTAL: enabled
-    REPOSITORY: public.ecr.aws/lemontech/tika
+    REPOSITORY: public.ecr.aws/lemontech/tika-full
   commands:
     - amazon-linux-extras install docker
     - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/lemontech
