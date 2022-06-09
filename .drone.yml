@@ -8,7 +8,7 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws
+      registry: 786298960439.dkr.ecr.us-east-1.amazonaws.com
       registry_mirror:
         from_secret: REGISTRY_MIRROR
       repo: lemontech/tika
@@ -32,7 +32,7 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws
+      registry: 786298960439.dkr.ecr.us-east-1.amazonaws.com
       registry_mirror:
         from_secret: REGISTRY_MIRROR
       repo: lemontech/tika
@@ -65,10 +65,10 @@ steps:
   image: amazon/aws-cli
   environment:
     DOCKER_CLI_EXPERIMENTAL: enabled
-    REPOSITORY: public.ecr.aws/lemontech/tika-minimal
+    REPOSITORY: 786298960439.dkr.ecr.us-east-1.amazonaws.com/lemontech/tika
   commands:
     - amazon-linux-extras install docker
-    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/lemontech
+    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 786298960439.dkr.ecr.us-east-1.amazonaws.com/lemontech
     - if [ -n "${DRONE_PULL_REQUEST:-}" ]; then
         TAGS="pr-${DRONE_PULL_REQUEST:-},${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER}";
       elif [ -n "${DRONE_TAG:-}" ]; then
@@ -82,7 +82,7 @@ steps:
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-amd64 &&
         docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64 &&
         docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
-        docker manifest push $${REPOSITORY}:$${TAG};
+        docker manifest push $${REPOSITORY}:$${TAG}-minimal;
       done
 
 trigger:
@@ -102,7 +102,7 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws
+      registry: 786298960439.dkr.ecr.us-east-1.amazonaws.com
       registry_mirror:
         from_secret: REGISTRY_MIRROR
       repo: lemontech/tika
@@ -126,7 +126,7 @@ steps:
     image: lemontech/drone-kaniko
     pull: always
     settings:
-      registry: public.ecr.aws
+      registry: 786298960439.dkr.ecr.us-east-1.amazonaws.com
       registry_mirror:
         from_secret: REGISTRY_MIRROR
       repo: lemontech/tika
@@ -159,10 +159,10 @@ steps:
   image: amazon/aws-cli
   environment:
     DOCKER_CLI_EXPERIMENTAL: enabled
-    REPOSITORY: public.ecr.aws/lemontech/tika-full
+    REPOSITORY: 786298960439.dkr.ecr.us-east-1.amazonaws.com/lemontech/tika
   commands:
     - amazon-linux-extras install docker
-    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/lemontech
+    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 786298960439.dkr.ecr.us-east-1.amazonaws.com/lemontech
     - if [ -n "${DRONE_PULL_REQUEST:-}" ]; then
         TAGS="pr-${DRONE_PULL_REQUEST:-},${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER}";
       elif [ -n "${DRONE_TAG:-}" ]; then
@@ -176,7 +176,7 @@ steps:
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-amd64 &&
         docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-arm64 &&
         docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-amd64 &&
-        docker manifest push $${REPOSITORY}:$${TAG};
+        docker manifest push $${REPOSITORY}:$${TAG}-full;
       done
 
 trigger:
