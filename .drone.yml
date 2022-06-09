@@ -77,7 +77,7 @@ steps:
         TAGS="${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER},latest";
       fi
     - echo "$${TAGS}" | tr ',' '\n' | while read TAG; do
-        docker manifest create $${REPOSITORY}:$${TAG}
+        docker manifest create $${REPOSITORY}:$${TAG}-minimal
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
         docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64 &&
@@ -171,7 +171,7 @@ steps:
         TAGS="${DRONE_COMMIT_SHA},build-${DRONE_BUILD_NUMBER},latest";
       fi
     - echo "$${TAGS}" | tr ',' '\n' | while read TAG; do
-        docker manifest create $${REPOSITORY}:$${TAG}
+        docker manifest create $${REPOSITORY}:$${TAG}-full
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-arm64
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-amd64 &&
         docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-arm64 &&
