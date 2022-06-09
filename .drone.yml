@@ -78,8 +78,8 @@ steps:
       fi
     - echo "$${TAGS}" | tr ',' '\n' | while read TAG; do
         docker manifest create $${REPOSITORY}:$${TAG}
-          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-arm64
-          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-amd64 &&
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
         docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64 &&
         docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
         docker manifest push $${REPOSITORY}:$${TAG}-minimal;
@@ -172,8 +172,8 @@ steps:
       fi
     - echo "$${TAGS}" | tr ',' '\n' | while read TAG; do
         docker manifest create $${REPOSITORY}:$${TAG}
-          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-arm64
-          $${REPOSITORY}:${DRONE_COMMIT_SHA}-linux-amd64 &&
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-arm64
+          $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-amd64 &&
         docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-arm64 &&
         docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-full-linux-amd64 &&
         docker manifest push $${REPOSITORY}:$${TAG}-full;
