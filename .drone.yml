@@ -80,8 +80,8 @@ steps:
         docker manifest create $${REPOSITORY}:$${TAG}-minimal
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64
           $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
-        docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64 &&
-        docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG} $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
+        docker manifest annotate --arch arm64 $${REPOSITORY}:$${TAG}-minimal $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-arm64 &&
+        docker manifest annotate --arch amd64 $${REPOSITORY}:$${TAG}-minimal $${REPOSITORY}:${DRONE_COMMIT_SHA}-minimal-linux-amd64 &&
         docker manifest push $${REPOSITORY}:$${TAG}-minimal;
       done
 
